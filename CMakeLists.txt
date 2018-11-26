@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-project(breakpad VERSION 1.0)
+project(breakpad)
 
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(config_install_dir "lib/cmake/${PROJECT_NAME}")
@@ -171,8 +171,8 @@ set(LIBDISASM_SOURCES
     src/third_party/libdisasm/x86_operand_list.h
 )
 
-add_library(libbreakpad STATIC ${LIBBREAKPAD_SOURCES})
-add_library(libdisasm STATIC ${LIBDISASM_SOURCES} ${LIBDISASM_SOURCES})
+add_library(libbreakpad ${LIBBREAKPAD_SOURCES})
+add_library(libdisasm ${LIBDISASM_SOURCES} ${LIBDISASM_SOURCES})
 target_link_libraries(libbreakpad PRIVATE libdisasm)
 target_include_directories(libbreakpad
     PUBLIC
@@ -213,8 +213,6 @@ if(WIN32)
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
             $<INSTALL_INTERFACE:${include_install_dir}/breakpad>
     )
-
-    list(APPEND libbreakpad libbreakpad_client)
 
 endif()
 
