@@ -12,10 +12,6 @@ set(namespace "${PROJECT_NAME}::")
 include(GNUInstallDirs)
 
 include(CMakePackageConfigHelpers)
-
-write_basic_package_version_file(
-    "${version_config}" COMPATIBILITY SameMajorVersion
-)
  
  configure_package_config_file(
     "cmake/config.cmake.in"
@@ -247,11 +243,6 @@ else()
         REGEX "${HEADER_EXCLUDE_REGEX}" EXCLUDE    )
 endif()
  
-install(
-    FILES "${project_config}" "${version_config}"
-    DESTINATION "${config_install_dir}"
-)
-
 install(
     EXPORT "${targets_export_name}"
     NAMESPACE "${namespace}"
