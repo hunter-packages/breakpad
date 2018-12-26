@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 11)
 
 project(breakpad)
 
@@ -20,7 +22,7 @@ configure_package_config_file(
 )
 
 set(LIBBREAKPAD_SOURCES
-	src/google_breakpad/common/breakpad_types.h
+    src/google_breakpad/common/breakpad_types.h
     src/google_breakpad/common/minidump_format.h
     src/google_breakpad/common/minidump_size.h
     src/google_breakpad/processor/basic_source_line_resolver.h
@@ -168,7 +170,7 @@ set(LIBDISASM_SOURCES
 )
 
 add_library(libbreakpad ${LIBBREAKPAD_SOURCES})
-add_library(libdisasm ${LIBDISASM_SOURCES} ${LIBDISASM_SOURCES})
+add_library(libdisasm ${LIBDISASM_SOURCES})
 target_link_libraries(libbreakpad PRIVATE libdisasm)
 target_include_directories(libbreakpad
     PUBLIC
