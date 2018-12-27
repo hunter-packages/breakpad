@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 
 project(breakpad)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/modules")
+
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(config_install_dir "lib/cmake/${PROJECT_NAME}")
 set(include_install_dir "include")
@@ -188,8 +190,8 @@ add_definitions(
 if(WIN32)
     if(WIN32)
         file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/windows/*.cc src/common/windows/*.cc)
-        include_directories("C:/Program Files (x86)/Microsoft Visual Studio 14.0/DIA SDK/include")
-        include_directories("C:/Program Files (x86)/Microsoft Visual Studio 12.0/DIA SDK/include")
+        find_package(DiaSDK)
+        include_directories("${DIASDK_INCLUDE_DIRS}")
     elseif(APPLE)
         add_definitions(-DHAVE_MACH_O_NLIST_H)
         file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/mac/*.cc src/common/mac/*.cc)
