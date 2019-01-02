@@ -188,34 +188,32 @@ add_definitions(
 )
 
 if(WIN32)
-    if(WIN32)
-        file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/windows/*.cc src/common/windows/*.cc)
-        find_package(DiaSDK)
-        include_directories("${DIASDK_INCLUDE_DIRS}")
-    elseif(APPLE)
-        add_definitions(-DHAVE_MACH_O_NLIST_H)
-        file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/mac/*.cc src/common/mac/*.cc)
-    else()
-        add_definitions(-DHAVE_A_OUT_H)
-        file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/linux/*.cc src/common/linux/*.cc)
-    endif()
-    file(GLOB LIBBREAKPAD_COMMON_SOURCES src/common/*.cc src/common/*.c src/client/*.cc)
-    list(APPEND LIBBREAKPAD_CLIENT_SOURCES ${LIBBREAKPAD_COMMON_SOURCES})
-    list(FILTER LIBBREAKPAD_CLIENT_SOURCES EXCLUDE REGEX "/tests|/unittests|_unittest")
-    if(WIN32)
-        list(FILTER LIBBREAKPAD_CLIENT_SOURCES EXCLUDE REGEX "language.cc|path_helper.cc|stabs_to_module.cc|stabs_reader.cc|minidump_file_writer.cc")
-    endif()
-    add_library(libbreakpad_client ${LIBBREAKPAD_CLIENT_SOURCES})
-    target_include_directories(libbreakpad_client
-        PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-            $<INSTALL_INTERFACE:${include_install_dir}/breakpad>
-    )
-
+    file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/windows/*.cc src/common/windows/*.cc)
+    find_package(DiaSDK)
+    include_directories("${DIASDK_INCLUDE_DIRS}")
+elseif(APPLE)
+    add_definitions(-DHAVE_MACH_O_NLIST_H)
+    file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/mac/*.cc src/common/mac/*.cc)
+else()
+    add_definitions(-DHAVE_A_OUT_H)
+    file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/linux/*.cc src/common/linux/*.cc)
 endif()
+file(GLOB LIBBREAKPAD_COMMON_SOURCES src/common/*.cc src/common/*.c src/client/*.cc)
+list(APPEND LIBBREAKPAD_CLIENT_SOURCES ${LIBBREAKPAD_COMMON_SOURCES})
+list(FILTER LIBBREAKPAD_CLIENT_SOURCES EXCLUDE REGEX "/tests|/unittests|_unittest")
+if(WIN32)
+    list(FILTER LIBBREAKPAD_CLIENT_SOURCES EXCLUDE REGEX "language.cc|path_helper.cc|stabs_to_module.cc|stabs_reader.cc|minidump_file_writer.cc")
+endif()
+add_library(libbreakpad_client ${LIBBREAKPAD_CLIENT_SOURCES})
+target_include_directories(libbreakpad_client
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:${include_install_dir}/breakpad>
+)
+
 
 install(
-  TARGETS libbreakpad libdisasm 
+  TARGETS libbreakpad libdisasm libbreakpad_client
   EXPORT ${targets_export_name}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
