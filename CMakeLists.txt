@@ -216,6 +216,13 @@ target_include_directories(libbreakpad_client
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:${include_install_dir}/breakpad>
 )
+if(NOT WIN32 AND NOT APPLE)
+    hunter_add_package(gflags)
+    hunter_add_package(glog)
+    find_package(gflags CONFIG REQUIRED)
+    find_package(glog CONFIG REQUIRED)
+    target_link_libraries(libbreakpad_client PUBLIC gflags glog::glog)
+endif()
 
 
 install(
