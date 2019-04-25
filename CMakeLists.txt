@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.6)
 
+include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.23.83.tar.gz"
+    SHA1 "12dec078717539eb7b03e6d2a17797cba9be9ba9"
+)
+
 project(breakpad)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/modules")
 
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(config_install_dir "lib/cmake/${PROJECT_NAME}")
@@ -186,34 +194,39 @@ add_definitions(
 )
 
 if(WIN32)
-    if(WIN32)
-        file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/windows/*.cc src/common/windows/*.cc)
-        include_directories("C:/Program Files (x86)/Microsoft Visual Studio 14.0/DIA SDK/include")
-        include_directories("C:/Program Files (x86)/Microsoft Visual Studio 12.0/DIA SDK/include")
-    elseif(APPLE)
-        add_definitions(-DHAVE_MACH_O_NLIST_H)
-        file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/mac/*.cc src/common/mac/*.cc)
-    else()
-        add_definitions(-DHAVE_A_OUT_H)
-        file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/linux/*.cc src/common/linux/*.cc)
-    endif()
-    file(GLOB LIBBREAKPAD_COMMON_SOURCES src/common/*.cc src/common/*.c src/client/*.cc)
-    list(APPEND LIBBREAKPAD_CLIENT_SOURCES ${LIBBREAKPAD_COMMON_SOURCES})
-    list(FILTER LIBBREAKPAD_CLIENT_SOURCES EXCLUDE REGEX "/tests|/unittests|_unittest")
-    if(WIN32)
-        list(FILTER LIBBREAKPAD_CLIENT_SOURCES EXCLUDE REGEX "language.cc|path_helper.cc|stabs_to_module.cc|stabs_reader.cc|minidump_file_writer.cc")
-    endif()
-    add_library(libbreakpad_client ${LIBBREAKPAD_CLIENT_SOURCES})
-    target_include_directories(libbreakpad_client
-        PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-            $<INSTALL_INTERFACE:${include_install_dir}/breakpad>
-    )
-
+    file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/windows/*.cc src/common/windows/*.cc)
+    find_package(DiaSDK)
+    include_directories("${DIASDK_INCLUDE_DIRS}")
+elseif(APPLE)
+    add_definitions(-DHAVE_MACH_O_NLIST_H)
+    file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/mac/*.cc src/common/mac/*.cc)
+else()
+    add_definitions(-DHAVE_A_OUT_H)
+    file(GLOB_RECURSE LIBBREAKPAD_CLIENT_SOURCES src/client/linux/*.cc src/common/linux/*.cc)
+endif()
+file(GLOB LIBBREAKPAD_COMMON_SOURCES src/common/*.cc src/common/*.c src/client/*.cc)
+list(APPEND LIBBREAKPAD_CLIENT_SOURCES ${LIBBREAKPAD_COMMON_SOURCES})
+list(FILTER LIBBREAKPAD_CLIENT_SOURCES EXCLUDE REGEX "/tests|/unittests|_test.cc$|_unittest.cc$")
+if(WIN32)
+    list(FILTER LIBBREAKPAD_CLIENT_SOURCES EXCLUDE REGEX "language.cc|path_helper.cc|stabs_to_module.cc|stabs_reader.cc|minidump_file_writer.cc")
+endif()
+add_library(libbreakpad_client ${LIBBREAKPAD_CLIENT_SOURCES})
+target_include_directories(libbreakpad_client
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:${include_install_dir}/breakpad>
+)
+if(NOT WIN32 AND NOT APPLE)
+    hunter_add_package(gflags)
+    hunter_add_package(glog)
+    find_package(gflags CONFIG REQUIRED)
+    find_package(glog CONFIG REQUIRED)
+    target_link_libraries(libbreakpad_client PUBLIC gflags glog::glog)
 endif()
 
+
 install(
-  TARGETS libbreakpad libdisasm 
+  TARGETS libbreakpad libdisasm libbreakpad_client
   EXPORT ${targets_export_name}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
