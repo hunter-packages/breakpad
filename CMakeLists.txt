@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 
 include("cmake/HunterGate.cmake")
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.23.83.tar.gz"
-    SHA1 "12dec078717539eb7b03e6d2a17797cba9be9ba9"
+    URL "https://github.com/cpp-pm/hunter/archive/v0.23.300.tar.gz"
+    SHA1 "1151d539465d9cdbc880ee30f794864aec11c448"
 )
 
 project(breakpad)
@@ -219,8 +219,10 @@ target_include_directories(libbreakpad_client
 if(NOT WIN32 AND NOT APPLE)
     hunter_add_package(gflags)
     hunter_add_package(glog)
+    hunter_add_package(lss)
     find_package(gflags CONFIG REQUIRED)
     find_package(glog CONFIG REQUIRED)
+    find_package(lss CONFIG REQUIRED)
     target_link_libraries(libbreakpad_client PUBLIC gflags glog::glog)
 endif()
 
